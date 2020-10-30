@@ -1,0 +1,29 @@
+﻿@page
+@model WebApplication3.Areas.Identity.Pages.Store.KeyModel
+@{
+    ViewData["Title"] = "Key";
+}
+<form method="post">
+    <table class="table">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Name</th>
+                <th>Password</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>@Model.PageKey.Id</td>
+                <td>@Model.PageKey.Name</td>
+                <td>@Model.PageKey.Password</td>
+                <td>
+                    <button type="submit" asp-route-id="@Model.PageKey.Id">
+                        Show
+                    </button>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</form>
