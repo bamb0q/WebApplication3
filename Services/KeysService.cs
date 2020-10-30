@@ -57,5 +57,22 @@ namespace WebApplication3.Services
             pageKey.EncryptedPassword = this.passwordEndcodingHelper.DecryptString_Aes(pageKey.EncryptedPassword, user.PasswordHash, Convert.FromBase64String(pageKey.IV));
             return pageKey;
         }
+
+        public async Task ChangePageKeysPasswords(string userId, string oldHash)
+        {
+            var user = await this.context.Users.FirstOrDefaultAsync(x => x.Id == userId);
+            var pageKeysToChange = this.context.PageKeys.Where(x => x.UserId == userId);
+
+            foreach (var pageKeyToChange in pageKeysToChange)
+            {
+                var passwordDecoded = this.passwordEndcodingHelper.DecryptString_Aes(pageKeyToChange.EncryptedPassword, oldHash, Convert.FromBase64String(pageKeyToChange.IV));
+                byte[] IV;
+                pageKeyToChange.EncryptedPassword = this.passwordEndcodingHelper.EncryptString_Aes(passwordDecoded, user.PasswordHash, out IV);
+                pageKeyToChange.IV = Convert.ToBase64String(IV);
+            }
+
+            this.context.UpdateRange(pageKeysToChange);
+            await context.SaveChangesAsync();
+        }
     }
 }

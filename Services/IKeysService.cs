@@ -16,5 +16,7 @@ namespace WebApplication3.Services
         public Task<PageKey> GetUserPageKeyAsync(string userId, Guid pageKeyId);
 
         public Task<PageKey> GetDecryptedPageKeyPassword(string userId, Guid pageKeyId);
+
+        public Task ChangePageKeysPasswords(string userId, string oldHash);
     }
 }

@@ -8,6 +8,8 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.Extensions.Logging;
 using WebApplication3.Data.Models;
+using WebApplication3.Services;
+
 namespace WebApplication3.Areas.Identity.Pages.Account.Manage
 {
     public class ChangePasswordModel : PageModel
@@ -15,15 +17,18 @@ namespace WebApplication3.Areas.Identity.Pages.Account.Manage
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly SignInManager<ApplicationUser> _signInManager;
         private readonly ILogger<ChangePasswordModel> _logger;
+        private readonly IKeysService keysService;
 
         public ChangePasswordModel(
             UserManager<ApplicationUser> userManager,
             SignInManager<ApplicationUser> signInManager,
-            ILogger<ChangePasswordModel> logger)
+            ILogger<ChangePasswordModel> logger,
+            IKeysService keysService)
         {
             _userManager = userManager;
             _signInManager = signInManager;
             _logger = logger;
+            this.keysService = keysService;
         }
 
         [BindProperty]
@@ -76,6 +81,7 @@ namespace WebApplication3.Areas.Identity.Pages.Account.Manage
             }
 
             var user = await _userManager.GetUserAsync(User);
+            var oldHash = user.PasswordHash;
             if (user == null)
             {
                 return NotFound($"Unable to load user with ID '{_userManager.GetUserId(User)}'.");
@@ -89,7 +95,7 @@ namespace WebApplication3.Areas.Identity.Pages.Account.Manage
                 }
                 return Page();
             }
-
+            await this.keysService.ChangePageKeysPasswords(user.Id, oldHash);
             await _signInManager.RefreshSignInAsync(user);
             _logger.LogInformation("User changed their password successfully.");
             StatusMessage = "Your password has been changed.";
