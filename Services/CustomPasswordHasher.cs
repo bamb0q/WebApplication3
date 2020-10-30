@@ -7,6 +7,7 @@ using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
+using WebApplication3.Data;
 using WebApplication3.Data.Models;
 
 namespace WebApplication3.Services

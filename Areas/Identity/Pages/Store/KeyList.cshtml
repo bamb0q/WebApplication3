@@ -1,0 +1,29 @@
+﻿@page
+@model WebApplication3.Areas.Identity.Pages.Store.KeyListModel
+@{
+    ViewData["Title"] = "Keys list";
+}
+<form method="post">
+    <table class="table">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Name</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var key in Model.PageKeys)
+            {
+                <tr>
+                    <td>@key.Id</td>
+                    <td>@key.Name</td>
+                    <td>
+                        <a asp-page="Key" asp-route-id="@key.Id">Open</a>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+    <a asp-page="CreateKey">Create New</a>
+</form>
