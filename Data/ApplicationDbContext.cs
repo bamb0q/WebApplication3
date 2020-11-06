@@ -14,7 +14,7 @@ namespace WebApplication3.Data
         {
         }
 
-        public DbSet<PageKey> PageKeys { get; set; }
+        public virtual DbSet<PageKey> PageKeys { get; set; }
 
         protected override void OnModelCreating(ModelBuilder builder)
         {
