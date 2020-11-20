@@ -1,14 +1,14 @@
-FROM mcr.microsoft.com/dotnet/aspnet:5.0-buster-slim AS base
+FROM mcr.microsoft.com/dotnet/core/aspnet:3.1-buster-slim AS base
 WORKDIR /app
 EXPOSE 80
 EXPOSE 443
 
-FROM mcr.microsoft.com/dotnet/sdk:5.0-buster-slim AS build
+FROM mcr.microsoft.com/dotnet/core/sdk:3.1-buster AS build
 WORKDIR /src
-COPY ["WebApplication3.csproj", "./"]
-RUN dotnet restore "WebApplication3.csproj"
+COPY ["WebApplication3.csproj", ""]
+RUN dotnet restore "./WebApplication3.csproj"
 COPY . .
-WORKDIR "/src/"
+WORKDIR "/src/."
 RUN dotnet build "WebApplication3.csproj" -c Release -o /app/build
 
 FROM build AS publish

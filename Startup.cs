@@ -34,8 +34,7 @@ namespace WebApplication3
             services.AddScoped<IPasswordEndcodingHelper, PasswordEndcodingHelper>();
             services.AddDbContext<ApplicationDbContext>(options =>
                 options.UseSqlServer(
-                    Configuration.GetConnectionString("DefaultConnection")));
-            services.AddDatabaseDeveloperPageExceptionFilter();
+                    Configuration.GetConnectionString("PasswordWallet")));
             services.AddDefaultIdentity<ApplicationUser>()
                 .AddEntityFrameworkStores<ApplicationDbContext>();
             services.AddRazorPages();

@@ -1,22 +1,37 @@
-version: '3.4'
+version: '3.8'
 
 services:
-  sqldata:
+  Full2020-86424:
+    container_name: Full2020-86424
     image: mcr.microsoft.com/mssql/server
     environment:
-      - SA_PASSWORD=Pass@word
-      - ACCEPT_EULA=Y
+      SA_PASSWORD: 'Password@12345'
+      ACCEPT_EULA: 'Y'
     ports:
-      - 5433:1433
+      - 1433:1433
+    networks:
+      pocketwallet-bridge:
+        ipv4_address: 10.0.10.3
   webapplication3:
+    container_name: webapplication3
     image: webapplication3
     build:
       context: .
       dockerfile: Dockerfile
-    environment:
-      - 'ConnectionStrings:DefaultConnection=Server=sqldata,1433;Database=aspnet-WebApplication3;User=sa;Password=Pass@word;Trusted_Connection=False;'
-      - Pepper=qwsdfghjk
     ports:
-      - 8080:80
+      - '9080:80'
+    environment:
+      - 'ConnectionStrings:PasswordWallet=Server=Full2020-86424,1433;Database=PasswordWallet;User=sa;Password=Password@12345;Trusted_Connection=False;'
+      - 'Pepper=qwsdfghjk'
     depends_on:
-      - sqldata
+      - Full2020-86424
+    networks:
+      pocketwallet-bridge:
+        ipv4_address: 10.0.10.4
+
+networks:
+  pocketwallet-bridge:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 10.0.10.0/24
