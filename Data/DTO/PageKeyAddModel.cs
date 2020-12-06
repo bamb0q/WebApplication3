@@ -12,6 +12,5 @@ namespace WebApplication3.Data.DTO
         public string Name { get; set; }
 
         public string Password { get; set; }
-
     }
 }

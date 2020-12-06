@@ -12,6 +12,8 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.Extensions.Logging;
 using WebApplication3.Data.Models;
+using WebApplication3.Services;
+using WebApplication3.Data.DTO;
 
 namespace WebApplication3.Areas.Identity.Pages.Account
 {
@@ -21,14 +23,17 @@ namespace WebApplication3.Areas.Identity.Pages.Account
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly SignInManager<ApplicationUser> _signInManager;
         private readonly ILogger<LoginModel> _logger;
+        private readonly ILoginAttemptsService _loginAttemptsService;
 
         public LoginModel(SignInManager<ApplicationUser> signInManager, 
             ILogger<LoginModel> logger,
-            UserManager<ApplicationUser> userManager)
+            UserManager<ApplicationUser> userManager, 
+            ILoginAttemptsService loginAttemptsService)
         {
             _userManager = userManager;
             _signInManager = signInManager;
             _logger = logger;
+            _loginAttemptsService = loginAttemptsService;
         }
 
         [BindProperty]
@@ -80,27 +85,51 @@ namespace WebApplication3.Areas.Identity.Pages.Account
         
             if (ModelState.IsValid)
             {
-                // This doesn't count login failures towards account lockout
-                // To enable password failures to trigger account lockout, set lockoutOnFailure: true
-                var result = await _signInManager.PasswordSignInAsync(Input.Email, Input.Password, Input.RememberMe, lockoutOnFailure: false);
-                if (result.Succeeded)
+                var iP = HttpContext.Connection.RemoteIpAddress;
+                if (await _loginAttemptsService.IsIpLocked(iP.ToString()))
                 {
-                    _logger.LogInformation("User logged in.");
-                    return LocalRedirect(returnUrl);
-                }
-                if (result.RequiresTwoFactor)
-                {
-                    return RedirectToPage("./LoginWith2fa", new { ReturnUrl = returnUrl, RememberMe = Input.RememberMe });
-                }
-                if (result.IsLockedOut)
-                {
-                    _logger.LogWarning("User account locked out.");
+                    ModelState.AddModelError(string.Empty, "IP locked out.");
                     return RedirectToPage("./Lockout");
                 }
-                else
+                else 
                 {
-                    ModelState.AddModelError(string.Empty, "Invalid login attempt.");
-                    return Page();
+                    // This doesn't count login failures towards account lockout
+                    // To enable password failures to trigger account lockout, set lockoutOnFailure: true
+                    var user = await _userManager.FindByNameAsync(Input.Email);
+                    var result = await _signInManager.PasswordSignInAsync(Input.Email, Input.Password, Input.RememberMe, lockoutOnFailure: false);
+                    if (result.Succeeded)
+                    {
+                        _logger.LogInformation("User logged in.");
+                        var loginAttempt = new LoginAttemptAddModel
+                        {
+                            IP = iP.ToString(),
+                            LoginResult = true,
+                            LoginTime = DateTime.UtcNow,
+                            User = user
+                        };
+                        await _loginAttemptsService.ResetLoginAttempts(loginAttempt);
+                        return LocalRedirect(returnUrl);
+                    }
+                    if (result.IsLockedOut)
+                    {
+                        _logger.LogWarning("User account locked out.");
+                        ModelState.AddModelError(string.Empty, "User account locked out.");
+                        return RedirectToPage("./Lockout");
+                    }
+                    else
+                    {
+                        ModelState.AddModelError(string.Empty, "Invalid login attempt.");
+                        var loginAttempt = new LoginAttemptAddModel
+                        {
+                            IP = iP.ToString(),
+                            LoginResult = false,
+                            LoginTime = DateTime.UtcNow,
+                            User = user
+                        };
+                        await _loginAttemptsService.SaveFailAttemptAndSetLockoutIfNeeded(loginAttempt);
+
+                        return Page();
+                    }
                 }
             }
 

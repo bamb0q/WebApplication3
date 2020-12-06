@@ -1,26 +1,27 @@
 ﻿using System;
 using Microsoft.EntityFrameworkCore.Migrations;
 
-namespace WebApplication3.Data.Migrations
+namespace WebApplication3.Migrations
 {
-    public partial class addPageKeys : Migration
+    public partial class LoginAttempts : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.CreateTable(
-                name: "PageKeys",
+                name: "LoginAttempts",
                 columns: table => new
                 {
-                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    UserId = table.Column<string>(type: "nvarchar(450)", nullable: true),
-                    Name = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    EncryptedPassword = table.Column<string>(type: "nvarchar(max)", nullable: true)
+                    Id = table.Column<Guid>(nullable: false),
+                    UserId = table.Column<string>(nullable: true),
+                    IP = table.Column<string>(nullable: true),
+                    LoginTime = table.Column<DateTime>(nullable: false),
+                    LoginResult = table.Column<bool>(nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_PageKeys", x => x.Id);
+                    table.PrimaryKey("PK_LoginAttempts", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_PageKeys_AspNetUsers_UserId",
+                        name: "FK_LoginAttempts_AspNetUsers_UserId",
                         column: x => x.UserId,
                         principalTable: "AspNetUsers",
                         principalColumn: "Id",
@@ -28,15 +29,15 @@ namespace WebApplication3.Data.Migrations
                 });
 
             migrationBuilder.CreateIndex(
-                name: "IX_PageKeys_UserId",
-                table: "PageKeys",
+                name: "IX_LoginAttempts_UserId",
+                table: "LoginAttempts",
                 column: "UserId");
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
-                name: "PageKeys");
+                name: "LoginAttempts");
         }
     }
 }

@@ -30,12 +30,12 @@ namespace WebApplication3
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddTransient<IPasswordHasher<ApplicationUser>, CustomPasswordHasher>();
+            services.AddTransient<ILoginAttemptsService, LoginAttemptsService>();
             services.AddScoped<IKeysService, KeysService>();
             services.AddScoped<IPasswordEndcodingHelper, PasswordEndcodingHelper>();
             services.AddDbContext<ApplicationDbContext>(options =>
                 options.UseSqlServer(
                     Configuration.GetConnectionString("DefaultConnection")));
-            services.AddDatabaseDeveloperPageExceptionFilter();
             services.AddDefaultIdentity<ApplicationUser>()
                 .AddEntityFrameworkStores<ApplicationDbContext>();
             services.AddRazorPages();

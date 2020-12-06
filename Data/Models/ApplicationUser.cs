@@ -11,5 +11,9 @@ namespace WebApplication3.Data.Models
         public bool HashType { get; set; }
 
         public string PasswordSalt { get; set; }
+
+        public virtual ICollection<LoginAttempt> LoginAttempts { get; set; }
+
+        public virtual ICollection<PageKey> PageKeys { get; set; }
     }
 }

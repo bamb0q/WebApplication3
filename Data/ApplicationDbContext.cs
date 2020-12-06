@@ -16,6 +16,10 @@ namespace WebApplication3.Data
 
         public virtual DbSet<PageKey> PageKeys { get; set; }
 
+        public virtual DbSet<LoginAttempt> LoginAttempts { get; set; }
+
+        public virtual DbSet<IPLockout> IPLockouts { get; set; }
+
         protected override void OnModelCreating(ModelBuilder builder)
         {
             base.OnModelCreating(builder);
