@@ -29,36 +29,22 @@ namespace WebApplication3.Services
 
         public async Task<List<string>> GetUserBlockedIps(string userId)
         {
-            var loginAttempts = await this.context.LoginAttempts.Where(x => x.UserId == userId && x.LoginResult == false && x.IPLockout.AccessFailedCount >= 4).ToListAsync();
-            return loginAttempts.Select(x => x.IP).Distinct().ToList();
+            var loginAttempts = await this.context.UserIPs.Where(x => x.UserId == userId && x.IPLockout.AccessFailedCount >= 4).Select(x => x.IP).ToListAsync();
+            return loginAttempts;
         }
 
         public async Task<bool> IsIpLocked(string iP)
         {
             var ipLockout = await this.context.IPLockouts.FirstOrDefaultAsync(x => x.IP == iP && x.LockoutEnabled == true);
-            return DateTimeOffset.Compare(DateTimeOffset.UtcNow, (DateTimeOffset)ipLockout.LockoutEnd) < 0; 
+            if (ipLockout?.LockoutEnd != null)
+            {
+                return DateTimeOffset.Compare(DateTimeOffset.UtcNow, (DateTimeOffset)ipLockout.LockoutEnd) < 0;
+            }
+            return false;
         }
 
         public async Task ResetLoginAttempts(LoginAttemptAddModel loginAttempt)
         {
-            var attempt = new LoginAttempt
-            {
-                UserId = loginAttempt.User.Id,
-                Id = Guid.NewGuid(),
-                IP = loginAttempt.IP,
-                LoginResult = loginAttempt.LoginResult,
-                LoginTime = loginAttempt.LoginTime
-            };
-            this.context.LoginAttempts.Add(attempt);
-            await this.context.SaveChangesAsync();
-            var userLoginAttempts = this.context.LoginAttempts.Where(x => x.UserId == loginAttempt.User.Id && x.LoginResult == false).ToList();
-            this.context.LoginAttempts.RemoveRange(userLoginAttempts);
-            loginAttempt.User.AccessFailedCount = 0;
-            loginAttempt.User.LockoutEnd = null;
-            this.context.Users.Update(loginAttempt.User);
-            await this.context.SaveChangesAsync();
-            var ipLoginAttempts = this.context.LoginAttempts.Where(x => x.IP == loginAttempt.IP && x.LoginResult == false).ToList();
-            this.context.LoginAttempts.RemoveRange(ipLoginAttempts);
             var ipLockout = this.context.IPLockouts.FirstOrDefault(x => x.IP == loginAttempt.IP);
             if (ipLockout != null)
             {
@@ -66,33 +52,19 @@ namespace WebApplication3.Services
                 ipLockout.LockoutEnd = null;
                 this.context.IPLockouts.Update(ipLockout);
             }
+            
+            loginAttempt.User.AccessFailedCount = 0;
+            loginAttempt.User.LockoutEnd = null;
+            this.context.Users.Update(loginAttempt.User);
             await this.context.SaveChangesAsync();
         }
 
         public async Task SaveFailAttemptAndSetLockoutIfNeeded(LoginAttemptAddModel loginAttempt)
         {
-            var attempt = new LoginAttempt
-            {
-                UserId = loginAttempt.User.Id,
-                Id = Guid.NewGuid(),
-                IP = loginAttempt.IP,
-                LoginResult = loginAttempt.LoginResult,
-                LoginTime = loginAttempt.LoginTime
-            };
-            this.context.LoginAttempts.Add(attempt);
-            await this.context.SaveChangesAsync();
-            loginAttempt.User.AccessFailedCount = this.context.LoginAttempts.Where(x => x.UserId == loginAttempt.User.Id && x.LoginResult == false).Count();
-            if (loginAttempt.User.AccessFailedCount >= 2)
-            {
-                loginAttempt.User.LockoutEnabled = true;
-                loginAttempt.User.LockoutEnd = loginAttempt.User.AccessFailedCount == 2 ? DateTimeOffset.UtcNow.AddSeconds(5) : loginAttempt.User.AccessFailedCount == 3 ? DateTimeOffset.UtcNow.AddSeconds(10) : loginAttempt.User.AccessFailedCount >= 4 ? DateTimeOffset.UtcNow.AddMinutes(2) : DateTimeOffset.UtcNow;
-            }
-            this.context.Update(loginAttempt.User);
-
             var ipLockout = this.context.IPLockouts.FirstOrDefault(x => x.IP == loginAttempt.IP);
             if (ipLockout != null)
             {
-                ipLockout.AccessFailedCount = this.context.LoginAttempts.Where(x => x.IP == loginAttempt.IP && x.LoginResult == false).Count();
+                ipLockout.AccessFailedCount += 1;
                 if (ipLockout.AccessFailedCount >= 2)
                 {
                     ipLockout.LockoutEnabled = true;
@@ -111,7 +83,13 @@ namespace WebApplication3.Services
                 };
                 this.context.Add(ipLockout);
             }
-
+            loginAttempt.User.AccessFailedCount += 1;
+            if (loginAttempt.User.AccessFailedCount >= 2)
+            {
+                loginAttempt.User.LockoutEnabled = true;
+                loginAttempt.User.LockoutEnd = loginAttempt.User.AccessFailedCount == 2 ? DateTimeOffset.UtcNow.AddSeconds(5) : loginAttempt.User.AccessFailedCount == 3 ? DateTimeOffset.UtcNow.AddSeconds(10) : loginAttempt.User.AccessFailedCount >= 4 ? DateTimeOffset.UtcNow.AddMinutes(2) : DateTimeOffset.UtcNow;
+            }
+            this.context.Update(loginAttempt.User);
             await this.context.SaveChangesAsync();
         }
     }

@@ -104,7 +104,6 @@ namespace WebApplication3.Areas.Identity.Pages.Account
                         {
                             IP = iP.ToString(),
                             LoginResult = true,
-                            LoginTime = DateTime.UtcNow,
                             User = user
                         };
                         await _loginAttemptsService.ResetLoginAttempts(loginAttempt);
@@ -116,6 +115,10 @@ namespace WebApplication3.Areas.Identity.Pages.Account
                         ModelState.AddModelError(string.Empty, "User account locked out.");
                         return RedirectToPage("./Lockout");
                     }
+                    if (user == null) 
+                    {
+                        ModelState.AddModelError(string.Empty, "No user.");
+                    }
                     else
                     {
                         ModelState.AddModelError(string.Empty, "Invalid login attempt.");
@@ -123,7 +126,6 @@ namespace WebApplication3.Areas.Identity.Pages.Account
                         {
                             IP = iP.ToString(),
                             LoginResult = false,
-                            LoginTime = DateTime.UtcNow,
                             User = user
                         };
                         await _loginAttemptsService.SaveFailAttemptAndSetLockoutIfNeeded(loginAttempt);

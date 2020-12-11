@@ -12,8 +12,6 @@ namespace WebApplication3.Data.DTO
 
         public string IP { get; set; }
 
-        public DateTime LoginTime { get; set; }
-
         public bool LoginResult { get; set; }
     }
 }

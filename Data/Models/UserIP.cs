@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace WebApplication3.Data.Models
 {
-    public class LoginAttempt
+    public class UserIP
     {
         [Key]
         public Guid Id { get; set; }
@@ -15,10 +15,6 @@ namespace WebApplication3.Data.Models
         public string UserId { get; set; }
 
         public string IP { get; set; }
-
-        public DateTime LoginTime { get; set; }
-
-        public bool LoginResult { get; set; }
 
         [ForeignKey("UserId")]
         public virtual ApplicationUser ApplicationUser { get; set; }

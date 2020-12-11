@@ -1,0 +1,25 @@
+﻿@page
+@model IpResetModel
+@{
+    ViewData["Title"] = "IP Reset";
+    ViewData["ActivePage"] = ManageNavPages.IpReset;
+}
+
+<h4>@ViewData["Title"]</h4>
+<partial name="_StatusMessage" for="IpResetStatusMessage" />
+<div class="row">
+    <div class="col-md-6">
+        <form id="ip-reset-form" method="post">
+            <div class="form-group">
+                <label asp-for="Input.IP"></label>
+                @Html.DropDownListFor(model => model.Input.IP, Model.IPs)
+                <span asp-validation-for="Input.IP" class="text-danger"></span>
+            </div>
+            <button type="submit" class="btn btn-primary">Unblock IP</button>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

@@ -12,8 +12,8 @@ namespace WebApplication3.Data.Models
 
         public string PasswordSalt { get; set; }
 
-        public virtual ICollection<LoginAttempt> LoginAttempts { get; set; }
-
         public virtual ICollection<PageKey> PageKeys { get; set; }
+
+        public virtual ICollection<UserIP> UserIPs { get; set; }
     }
 }

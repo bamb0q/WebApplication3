@@ -18,7 +18,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "IntegrationTests", "..\Inte
 EndProject
 Project("{E53339B2-1760-4266-BCC7-CA923CBCF16C}") = "docker-compose", "docker-compose.dcproj", "{EF60E05D-8136-4AA0-9863-DA60F7F9335F}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PrimeNumbers", "..\PrimeNumbers\PrimeNumbers.csproj", "{D7263A81-0493-4DAA-9862-EEF808CFB566}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PrimeNumbers", "..\PrimeNumbers\PrimeNumbers.csproj", "{D7263A81-0493-4DAA-9862-EEF808CFB566}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
